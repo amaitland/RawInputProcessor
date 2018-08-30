@@ -1,4 +1,4 @@
-namespace RawInputProcessor
+namespace RawInputProcessor.Enums
 {
     public enum RawDeviceType
     {

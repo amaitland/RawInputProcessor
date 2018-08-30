@@ -22,9 +22,9 @@
             <TextBlock Text="Device Details"
                        Style="{StaticResource HeaderTextStyle}" />
             <TextBox IsReadOnly="True"
-                     Text="{Binding Event.Device.Name, Mode=OneWay}" />
-            <TextBlock Text="{Binding Event.Device.Type, StringFormat='{}{0}'}" />
-            <TextBlock Text="{Binding Event.Device.Description}" />
+                     Text="{Binding Device.Name, Mode=OneWay}" />
+            <TextBlock Text="{Binding Device.Type, StringFormat='{}{0}'}" />
+            <TextBlock Text="{Binding Device.Description}" />
             <TextBlock Text="{Binding DeviceCount, StringFormat='Device Count: {0}'}" />
             <TextBlock Text="Test Input"
                        Style="{StaticResource HeaderTextStyle}" />

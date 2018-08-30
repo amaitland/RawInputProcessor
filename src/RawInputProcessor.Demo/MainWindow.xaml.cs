@@ -1,6 +1,11 @@
-﻿using System;
+﻿using RawInputProcessor.Event;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Management;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Interop;
 
 namespace RawInputProcessor.Demo
 {
@@ -9,14 +14,27 @@ namespace RawInputProcessor.Demo
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private RawPresentationInput _rawInput;
+        private KeyboardHwndSourceHook _keyboardHwndSourceHook;
         private int _deviceCount;
-        private RawInputEventArgs _event;
+        private RawKeyEventArgs _event;
+        private RawKeyboardDevice _device;
+
+        private IDictionary<IntPtr, RawKeyboardDevice> _keyboardDevices;
 
         public MainWindow()
         {
             DataContext = this;
+
             InitializeComponent();
+
+            ManagementObjectSearcher searcher =
+                new ManagementObjectSearcher("root\\CIMV2",
+                "SELECT * FROM Win32_Keyboard");
+
+            foreach (ManagementObject queryObj in searcher.Get())
+            {
+                var desc = queryObj["Description"];
+            }
         }
 
         public int DeviceCount
@@ -29,7 +47,7 @@ namespace RawInputProcessor.Demo
             }
         }
 
-        public RawInputEventArgs Event
+        public RawKeyEventArgs Event
         {
             get { return _event; }
             set
@@ -39,35 +57,59 @@ namespace RawInputProcessor.Demo
             }
         }
 
-        private void OnKeyPressed(object sender, RawInputEventArgs e)
+        public RawKeyboardDevice Device
+        {
+            get { return _device; }
+            set
+            {
+                _device = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private void OnKeyPressed(object sender, RawKeyEventArgs e)
         {
             Event = e;
-            DeviceCount = _rawInput.NumberOfKeyboards;
-            e.Handled = (ShouldHandle.IsChecked == true);
+            if (_keyboardDevices.TryGetValue(e.Device, out RawKeyboardDevice dev))
+            {
+                Device = dev;
+            }
+            if (e.Device == new IntPtr(0x1b21034f) && ShouldHandle.IsChecked == true)
+            {
+                e.Handled = true;
+            }
+
+            DeviceCount = _keyboardDevices.Count;
         }
 
         protected override void OnSourceInitialized(EventArgs e)
         {
-            StartWndProcHandler();
+            if (!(PresentationSource.FromVisual(this) is HwndSource source))
+            {
+                throw new InvalidOperationException("Cannot find a valid HwndSource");
+            }
+
+            _keyboardHwndSourceHook = new KeyboardHwndSourceHook(source, true);
+            _keyboardHwndSourceHook.KeyPressed += OnKeyPressed;
+            _keyboardHwndSourceHook.InputDeviceChange += OnInputDeviceChange;
+
+            _keyboardDevices = RawKeyboardDevice.GetDevices();
+
+            DeviceCount = _keyboardDevices.Count;
+
             base.OnSourceInitialized(e);
         }
 
-        private void StartWndProcHandler()
+        private void OnInputDeviceChange(object sender, EventArgs e)
         {
-            _rawInput = new RawPresentationInput(this, RawInputCaptureMode.Foreground);
-            _rawInput.KeyPressed += OnKeyPressed;
-            DeviceCount = _rawInput.NumberOfKeyboards;
+            _keyboardDevices = RawKeyboardDevice.GetDevices();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChangedEventHandler propertyChanged = PropertyChanged;
-            if (propertyChanged != null)
-            {
-                propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

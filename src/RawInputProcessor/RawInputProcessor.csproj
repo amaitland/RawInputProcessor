@@ -32,23 +32,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationFramework" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KeyPressState.cs" />
+    <Compile Include="Enums\KeyPressState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawDeviceType.cs" />
-    <Compile Include="RawFormsInput.cs" />
-    <Compile Include="RawInput.cs" />
-    <Compile Include="RawInputCaptureMode.cs" />
-    <Compile Include="RawInputEventArgs.cs" />
-    <Compile Include="RawKeyboard.cs" />
+    <Compile Include="Enums\RawDeviceType.cs" />
+    <Compile Include="Event\RawKeyEventArgs.cs" />
+    <Compile Include="RawKeyboardMessageProcessor.cs" />
     <Compile Include="RawKeyboardDevice.cs" />
-    <Compile Include="RawPresentationInput.cs" />
+    <Compile Include="KeyboardHwndSourceHook.cs" />
     <Compile Include="Win32\RegistryAccess.cs" />
     <Compile Include="Win32\DataStructures.cs" />
     <Compile Include="Win32\Enumerations.cs" />

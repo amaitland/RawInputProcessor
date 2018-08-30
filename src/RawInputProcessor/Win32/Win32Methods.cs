@@ -1,3 +1,4 @@
+using RawInputProcessor.Enums;
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
